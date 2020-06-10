@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import sin,cos,pi,sqrt,exp
-from random import gauss
+from random import uniform,gauss
 
 def f(a,b):
     r = b-a
@@ -69,6 +69,12 @@ def get_gauss_coordinates():
         x[i] = ([gauss(mu=0, sigma=sigma_x),gauss(mu=0, sigma=sigma_y)])
     return x
 
+def get_uniform_coordinates():
+    x = np.zeros((n_particles,d))
+    for i in range(n_particles):
+        x[i] = ([uniform(-R,R)*cos(omega*t0),uniform(-R,R)*sin(omega*t0)])
+    return x
+
 def get_init_velocities():
     v = np.zeros((n_particles,d))
     for i in range(n_particles):
@@ -84,14 +90,14 @@ epsilon = 0.1
 d = 2 #dimension
 n_particles = 10 #particles
 t0 = 0.
-t = 10*2.0*pi/omega
+t = 5*2.0*pi/omega
 dt = 100
 N = np.int(np.floor(t/dt))
 scale = 20.0
 print(t,N)
 #initial condition
 #x,v = init_two()
-x = get_gauss_coordinates()
+x = get_uniform_coordinates()
 v = get_init_velocities()
 #main loop
 #print(x,v)
