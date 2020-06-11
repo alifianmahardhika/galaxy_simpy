@@ -1,8 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import sin,cos,pi,sqrt,exp
+from numpy.linalg import norm
 from random import uniform,gauss
+from time import time
 
+start = time()
 def f(a,b):
     r = b-a
     r = (r[0]**2+r[1]**2)**(1/2)
@@ -16,12 +19,9 @@ def euler_bound(x,v):
             if(i!=j):    
                 x[i] += v[i]*dt
                 v[i] += f(x_k[i],x_k[j])*dt
-            if (abs(x[i,0]) > scale) or (abs(x[i,0] < -scale)):
-                v[i] = -v[i]
-                x[i] += v[i]*dt
-            if (abs(x[i,1]) > scale) or (abs(x[i,1] < -scale)):
-                v[i] = -v[i]
-                x[i] += v[i]*dt
+                if (norm(x[i]) > R) or (norm(x[i]) < -R):
+                    v[i] = -v[i]
+                    x[i] += v[i]*dt
     return x,v
 
 def euler(x,v):
@@ -86,12 +86,12 @@ m = 1. #kg
 R = 2. #m
 G = 6.67 #m/s^2
 omega = sqrt((G*m)/(4*R**3)) #velocities
-epsilon = 0.1
+epsilon = 0.001
 d = 2 #dimension
 n_particles = 10 #particles
 t0 = 0.
 t = 5*2.0*pi/omega
-dt = 100
+dt = 0.01
 N = np.int(np.floor(t/dt))
 scale = 20.0
 print(t,N)
@@ -102,14 +102,15 @@ v = get_init_velocities()
 #main loop
 #print(x,v)
 plt.plot(x[:,0],x[:,1], 'ro')
-for k in range(10):
+for k in range(N):
     t = k*dt
-    x,v = euler(x,v)
+    x,v = euler_bound(x,v)
     #plt.plot(xe[:,0],xe[:,1], 'b.')
     #plt.xlim(right=scale,left=-scale)
     #plt.ylim(top=scale,bottom=-scale)
-    #filename='./figures/fig'+str(k)+'.png'
-    #plt.savefig(filename)
     #plt.axes(aspect='equal')
     plt.plot(x[:,0],x[:,1], 'b.')
+#filename='./figures/plot.png'
+#plt.savefig(filename)
+print("Time for running code :", time()-start, "seconds")
 plt.show()
