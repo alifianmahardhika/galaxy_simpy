@@ -111,7 +111,7 @@ N = np.int(np.floor(t/dt))
 scale = 20.0
 print(t,N)
 
-x = get_init_coordinates2()
+x = get_init_coordinates_modif()
 v = get_init_velocities()
 time = str(dt)
 for k in range(N):
