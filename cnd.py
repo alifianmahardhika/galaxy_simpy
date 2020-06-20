@@ -1,108 +1,76 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from numpy import sin,cos,pi,sqrt,exp
+from numpy import sin,cos,pi,sqrt,exp,floor,zeros,copy,array
+from numpy.random import normal
 from numpy.linalg import norm
-from random import uniform,gauss
+from random import uniform
 from time import time
 
 start = time()
-def f(xi,xj):
-    rij = xj-xi
-    return (G*m*(rij))/(norm(rij)+epsilon)**3
-
-def euler_bound(x,v):
-    x_k = x
-    for i in range(n_particles):
-        x[i] += v[i]*dt
-        for j in range(n_particles):
-            if(i!=j):    
-                v[i] += f(x_k[i],x_k[j])*dt
-        if (norm(x[i]) > R) or (norm(x[i]) < -R):
-            v[i] = -v[i]
-            x[i] += v[i]*dt
-    return x,v
-
 def euler(x,v):
-    x_k = x
     for i in range(n_particles):
-        x[i] += v[i]*dt
+        sigmaF = zeros(2)
         for j in range(n_particles):
-            if(i!=j):    
-                v[i] += f(x_k[i],x_k[j])*dt
-    return x,v
-
+                if(i!=j): 
+                    sigmaF += f(x[i],x[j])
+        x[i] += v[i]*dt
+        v[i] += G*sigmaF*dt
 def symplectic(x,v):
     for i in range(n_particles):
-        x[i] += v[i]*dt
+        sigmaF = zeros(2)
         for j in range(n_particles):
-            if(i!=j):    
-                v[i] += f(x[i],x[j])*dt
-    return x,v
-
-def init_two():
-    x1 = ([R*cos(omega*t0),R*sin(omega*t0)])
-    x2 = -np.copy(x1)
-    v1 = ([omega*x1[1],omega*x1[0]])
-    v2 = -np.copy(v1)
-    x = np.array([x1,x2])
-    v = np.array([v1,v2])
-    return x,v
-
+                if(i!=j): 
+                    sigmaF += f(x[i],x[j])
+        v[i] += G*sigmaF*dt
+        x[i] += v[i]*dt
 def get_init_coordinates():
-    x = np.zeros((n_particles,d))
-    for i in range(n_particles):
-        if (i==0):
-            x[i] = ([R*cos(omega*t0),R*sin(omega*t0)])
-        elif (i%2):
-            x[i] = ([-i*R*cos(omega*t0),-i*R*sin(omega*t0)])
-        elif (i%2==0):
-            x[i] = ([i*R*cos(omega*t0),i*R*sin(omega*t0)])
+    x = zeros((n_particles,d))
+    i = 0
+    while(i<n_particles):
+        x1 = normal(-R,R)
+        x2 = normal(-R,R)
+        if(abs(x1**2+x2**2)<R**2):
+            x[i] = ([x1,x2])
+            i+=1
+        else:
+            i=i
     return x
-
-def get_gauss_coordinates():
-    sigma_x = R * 10
-    sigma_y = R * 0.1
-    x = np.zeros((n_particles,d))
-    for i in range(n_particles):
-        x[i] = ([gauss(mu=0, sigma=sigma_x),gauss(mu=0, sigma=sigma_y)])
-    return x
-
-def get_uniform_coordinates():
-    x = np.zeros((n_particles,d))
-    for i in range(n_particles):
-        x[i] = ([uniform(-R,R)*cos(omega*t0),uniform(-R,R)*sin(omega*t0)])
-    return x
-
 def get_init_velocities():
-    v = np.zeros((n_particles,d))
+    v = zeros((n_particles,d))
     for i in range(n_particles):
-        v[i] = ([omega*x[i,1],omega*x[i,0]])
+        v[i] = ([omega*cos(0),omega*sin(0)])
     return v
-
-#parameter
-m = 1. #kg
-R = 2. #m
-G = 6.67 #m/s^2
-omega = sqrt((G*m)/(4*R**3)) #velocities
-epsilon = 0.001
+def f(xi,xj):
+    rij = xj-xi
+    return (m*(rij))/(norm(rij)+epsilon)**3
+def init_two():
+    x1 = ([R*cos(omega*0),R*sin(omega*0)])
+    x2 = -copy(x1)
+    v1 = ([omega*x1[1],omega*x1[0]])
+    v2 = -copy(v1)
+    x = array([x1,x2])
+    v = array([v1,v2])
+    return x,v
+#Global parameter
+n_particles = 2 #particles
 d = 2 #dimension
-n_particles = 10 #particles
-t0 = 0.
-t = 5*2.0*pi/omega
-dt = 0.01
-N = np.int(np.floor(t/dt))
-scale = 20.0
-print(t,N)
+m = 10e11/n_particles #[MO]
+R = 2.9 #[kpc]
+G = 13.34*10e-11 #[kpc^3 MO^-1 gy^-2]
+omega = sqrt((G*m)/(4*R**3)) #velocities
+epsilon = 1e-5
+T = 5
+dt = 0.001
+N = int(floor(T/dt))
+scale = 10.0
 #initial condition
-#x,v = init_two()
-x = get_uniform_coordinates()
-v = get_init_velocities()
+x,v = init_two()
+#x = get_init_coordinates()
+#v = get_init_velocities()
+print(x)
 #main loop
-#print(x,v)
 plt.plot(x[:,0],x[:,1], 'ro')
 for k in range(N):
-    t = k*dt
-    x,v = euler_bound(x,v)
+    symplectic(x,v)
     #plt.plot(xe[:,0],xe[:,1], 'b.')
     #plt.xlim(right=scale,left=-scale)
     #plt.ylim(top=scale,bottom=-scale)
@@ -110,5 +78,6 @@ for k in range(N):
     plt.plot(x[:,0],x[:,1], 'b.')
 #filename='./figures/plot.png'
 #plt.savefig(filename)
-print("Time for running code :", time()-start, "seconds")
+print("Time for running ", N, "iteration :", time()-start, "seconds")
+print(x)
 plt.show()
