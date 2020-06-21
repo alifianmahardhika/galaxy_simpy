@@ -4,6 +4,7 @@ from numpy.random import normal
 from numpy.linalg import norm
 from random import uniform
 from time import time
+from mpmath import sech
 
 start = time()
 def euler_bound(x,v):
@@ -46,37 +47,50 @@ def get_init_coordinates():
         else:
             i=i
     return x
+def get_distribution():
+    x = get_init_coordinates()
+    rho = zeros((n_particles,d))
+    i = 0
+    while(i<n_particles):
+        rho[i] = [(M_total/(pi*R**2))*exp(x[i,0]/R)*sech((x[i,1]/R))**2,(M_total/(pi*R**2))*exp(x[i,0]/R)*sech((x[i,1]/R))**2]
+        i += 1
+    return rho,x
+
 def get_init_velocities():
     v = zeros((n_particles,d))
     for i in range(n_particles):
-        v[i] = ([omega*x[i,1],omega*x[i,0]])
+        v[i] = ([-(1/sqrt(rho[i,0]))*omega*sin(omega*t),(1/sqrt(rho[i,1]))*omega*cos(omega*t)])
     return v
 def f(xi,xj):
     rij = xj-xi
     return (G*m*(rij))/(norm(rij)+epsilon)**3
 def mu(s):
     return s/sqrt(1+s**2)
+
+
 #Global parameter
 n_particles = 10 #particles
 d = 2 #dimension
 m = 10e11/n_particles #[MO]
+M_total = m*n_particles
 R = 2.9 #[kpc]
 G = 13.34*10e-11 #[kpc^3 MO^-1 gy^-2]
 omega = normal(0,2*pi) #velocities
-epsilon = 1e-9
+epsilon = 1e-8
 T = 5
 dt = 0.01
+t = 0. #step
 N = int(floor(T/dt))
 scale = 7.0
-a_0 =  1e-8
+a_0 =  1e-10
 #initial condition
 #x,v = init_two()
-x = get_init_coordinates()
+rho,x = get_distribution()
+plt.plot(x[:,0],x[:,1], 'r.')
 v = get_init_velocities()
-print(x)
 #main loop
-plt.plot(x[:,0],x[:,1], 'ro')
 for k in range(N):
+    t = k*dt
     euler(x,v)
     #plt.plot(xe[:,0],xe[:,1], 'b.')
     plt.xlim(right=scale,left=-scale)
