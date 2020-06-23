@@ -37,7 +37,7 @@ def get_init_coordinates():
 def get_init_velocities():
     v = zeros((n_particles,d))
     for i in range(n_particles):
-        v[i] = ([omega*cos(0),omega*sin(0)])
+        v[i] = ([omega*x[i,1],omega*x[i,0]])
     return v
 def f(xi,xj):
     rij = xj-xi
@@ -50,32 +50,39 @@ def init_two():
     x = array([x1,x2])
     v = array([v1,v2])
     return x,v
+def kinetic_energy():
+    sigmaN = 0.0
+    for i in range(n_particles):
+        sigmaN += 0.5*m*norm(v[i])**2
+    return sigmaN
 #Global parameter
-n_particles = 2 #particles
+n_particles = 10 #particles
 d = 2 #dimension
 m = 10e11/n_particles #[MO]
 R = 2.9 #[kpc]
 G = 13.34*10e-11 #[kpc^3 MO^-1 gy^-2]
 omega = sqrt((G*m)/(4*R**3)) #velocities
-epsilon = 1e-5
-T = 5
-dt = 0.001
+epsilon = 3
+T = 2
+dt = 0.1
 N = int(floor(T/dt))
-scale = 10.0
+scale = 30.0
 #initial condition
-x,v = init_two()
-#x = get_init_coordinates()
-#v = get_init_velocities()
+#x,v = init_two()
+x = get_init_coordinates()
+v = get_init_velocities()
 print(x)
 #main loop
 plt.plot(x[:,0],x[:,1], 'ro')
 for k in range(N):
-    symplectic(x,v)
+    euler(x,v)
+    print(kinetic_energy())
     #plt.plot(xe[:,0],xe[:,1], 'b.')
     #plt.xlim(right=scale,left=-scale)
     #plt.ylim(top=scale,bottom=-scale)
     #plt.axes(aspect='equal')
-    plt.plot(x[:,0],x[:,1], 'b.')
+    if(k%30):
+        plt.plot(x[:,0],x[:,1], 'b.')
 #filename='./figures/plot.png'
 #plt.savefig(filename)
 print("Time for running ", N, "iteration :", time()-start, "seconds")
