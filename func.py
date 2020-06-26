@@ -46,20 +46,11 @@ def f(xi,xj):
     return (G*m*(rij))/(norm(rij)+epsilon)**3
 def mu(s):
     return s/sqrt(1+s**2)
+def mu_inv(s):
+    return (s/sqrt(1+s**2))**(-1)
 a_0 = 10**(-8)
-acc = 10**(-9)/a_0
-print(a_0,acc,mu(acc))
-plt.plot(x[:,0],x[:,1], 'ro')
-for k in range(10):
-    x_k = x
-    for i in range(n_particles):
-        x[i] += v[i]*dt
-        for j in range(n_particles):
-            if(i!=j):
-                a = norm(f(x_k[i],x_k[j]))
-                muv = mu(a/a_0)
-                #print(a,muv)
-                v[i] += (f(x_k[i],x_k[j])/muv)*dt
-    plt.plot(x[:,0],x[:,1], 'b.')
+acc = 10**(-8)/a_0
+print(a_0,acc,mu_inv(acc))
+#plt.plot(x[:,0],x[:,1], 'ro')
 print("Time for running code :", time()-start, "seconds")
-plt.show()
+#plt.show()
