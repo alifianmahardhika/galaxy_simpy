@@ -13,8 +13,7 @@ def euler(x,v):
                 if(i!=j): 
                     sigmaF += f(x[i],x[j])
         x[i] += v[i]*dt
-        #fi = G*m*sigmaF
-        v[i] += a_0*mu_inv(norm(sigmaF)/a_0)*(sigmaF/norm(sigmaF))*dt
+        v[i] += a_0*phi_inv(norm(sigmaF)/a_0)*(sigmaF/norm(sigmaF))*dt
 def symplectic(x,v):
     for i in range(n_particles):
         sigmaF = zeros(2)
@@ -39,8 +38,8 @@ def kinetic_energy():
     for i in range(n_particles):
         sigmaN += 0.5*m*norm(v[i])**2
     return sigmaN
-def mu_inv(s):
-    return (s/sqrt(1+s**2))**(-1)
+def phi_inv(q):
+    return sqrt((q**2+sqrt(1+q**2))/2.0)**(-1)
 #Global parameter
 n_particles = 2 #particles
 d = 2 #dimension
@@ -49,11 +48,11 @@ R = 2.9 #[kpc]
 G = 13.34*10e-11 #[kpc^3 MO^-1 gy^-2]
 omega = sqrt((G*m)/(4*R**3)) #velocities
 epsilon = 1e-3
-T = 5
-dt = 0.01
+T = 100
+dt = 0.001
 N = int(floor(T/dt))
 scale = 30.0
-a_0 = 10**(-8)
+a_0 = 10e-1
 #initial condition
 x,v = init_two()
 #x = get_init_coordinates()
@@ -68,7 +67,7 @@ for k in range(N):
     #plt.xlim(right=scale,left=-scale)
     #plt.ylim(top=scale,bottom=-scale)
     #plt.axes(aspect='equal')
-    if(k%10==0):
+    if(k%100==0):
         plt.plot(x[:,0],x[:,1], 'b.')
 #filename='./figures/plot.png'
 #plt.savefig(filename)

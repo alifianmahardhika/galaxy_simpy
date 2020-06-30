@@ -51,7 +51,7 @@ def get_distribution():
     rho = zeros((n_particles,d))
     i = 0
     while(i<n_particles):
-        rho[i] = [(M_total/(pi*R**2))*exp(x[i,0]/R)*sech((x[i,1]/R))**2,(M_total/(pi*R**2))*exp(x[i,0]/R)*sech((x[i,1]/R))**2]
+        #rho[i] = [(M_total/(pi*R**2))*exp(x[i,0]/R)*sech((x[i,1]/R))**2,(M_total/(pi*R**2))*exp(x[i,0]/R)*sech((x[i,1]/R))**2]
         i += 1
     return rho,x
 
