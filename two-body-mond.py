@@ -39,7 +39,7 @@ def kinetic_energy():
         sigmaN += 0.5*m*norm(v[i])**2
     return sigmaN
 def phi_inv(q):
-    return sqrt((q**2+sqrt(1+q**2))/2.0)**(-1)
+    return sqrt(q)*sqrt((1.0+sqrt(1.0+(4.0/r**2)))/2.0)
 #Global parameter
 n_particles = 2 #particles
 d = 2 #dimension
